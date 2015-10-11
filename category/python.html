@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Tushar Tyagi - Python</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li class="active"><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/iteration-in-python.html">Iteration in Python</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-03-15T00:00:00+05:30">
+                Published: Sun 15 March 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/python.html">Python</a>.</p>
+<p>tags: <a href="/tag/iteration.html">iteration</a> <a href="/tag/python.html">python</a> </p>
+</footer><!-- /.post-info --><h1>Let's start Iterating in our own class</h1>
+<p>Almost all the built-in classes in Python allows us to iterate using <code>for..in</code>
+syntax, and the language allows us to extend the user created classes to give
+the same functionality using minimum coding. Let's see how we can achive the
+same.</p>
+<p>Any object which has to provide iteration is called an iterable, and to be one
+it has to implement two methods:</p>
+<ul>
+<li>__iter__()</li>
+<li>__next__()</li>
+</ul>
+<p>Whenever you use <code>for..in</code> loop, internally <code>__iter__</code> method is called, and it
+has to return an iterable object. Since we are implementing this functionality
+on some class, returning an object of this class, or <code>self</code> usually does the
+trick.</p>
+<p>The second method, <code>__next__</code> (or <code>next</code> in Python2) holds the logic which
+returns the next object of the iterable. For instance, if we are iterating
+over a list, [1,2,3,4], then calling <code>__next__</code> initially will return 1, then
+the second call will return 2, and so on. Once the next-logic has exhausted
+and there isn't any element to return, we have to raise a <code>StopIteration</code>
+exception. for loop is designed to consume and digest this exception and
+behave as if nothing happened, any other uncaught exception is passed through
+it to the outer scope.</p>
+<p>Let's create a class which takes in a list and returns a list with all the
+elements doubled.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">DoubleTheList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_list</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_list_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_list_length</span><span class="p">:</span>
+            <span class="n">current_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_index</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">current_val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
+</pre></div>
+
+
+<p>Let's checkout our code:</p>
+<div class="highlight"><pre><span class="o">&gt;</span> <span class="n">dbl_list</span> <span class="o">=</span> <span class="n">DoubleTheList</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span> 
+<span class="o">&gt;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dbl_list</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="mi">2</span>
+<span class="mi">4</span>
+<span class="mi">6</span>
+<span class="mi">8</span>
+
+<span class="o">&gt;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dbl_list</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="c"># Ouch! No output</span>
+</pre></div>
+
+
+<h2>Don't depend on self</h2>
+<p>What happened??? In comparision to built-in iterators like lists, the behavior
+of our object is totally differnt:</p>
+<div class="highlight"><pre><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="o">&gt;</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+<span class="mi">1</span>
+<span class="mi">2</span>
+<span class="mi">3</span>
+
+<span class="o">&gt;</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+<span class="mi">1</span>
+<span class="mi">2</span>
+<span class="mi">3</span>
+</pre></div>
+
+
+<p>If we iterate over a list (or tuple, or dict) we can keep on iterating again
+and again.</p>
+<p>As I said, <code>for</code> calls the <code>__iter__</code> method every time the loop is
+initialised, and once it gets the object it calls the <code>__next__</code> method until
+it encounters a <code>StopIteration</code> exception. So, then the fault lies in our
+<code>__iter__()</code> method. If you see, although we are returning an object,  once
+the <code>__next__</code> logic is exhausted in the object, it doesn't get renewed.</p>
+<p>So instead of returning <code>self</code>, we have to return a new instance so that <code>for</code>
+can start working with a fresh iteration. This requires a small change in our
+code:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">DoubleTheList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span> <span class="o">=</span> <span class="n">input_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_list_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DoubleTheList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_list_length</span><span class="p">:</span>
+            <span class="n">current_val</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_index</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">current_val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
+</pre></div>
+
+
+<p>Let's test this thing:</p>
+<div class="highlight"><pre><span class="o">&gt;</span> <span class="n">dbl_list</span> <span class="o">=</span> <span class="n">DoubleTheList</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span> 
+<span class="o">&gt;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dbl_list</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="mi">2</span>
+<span class="mi">4</span>
+<span class="mi">6</span>
+<span class="mi">8</span>
+
+<span class="o">&gt;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dbl_list</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="mi">2</span>
+<span class="mi">4</span>
+<span class="mi">6</span>
+<span class="mi">8</span>
+</pre></div>
+
+
+<h3>Parting Words</h3>
+<p>So it's clear that implementing iteration in Python is pretty simple and
+straightforwards, like a lot of other things in the language. </p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/coroutines-in-python.html" rel="bookmark"
+                           title="Permalink to Coroutines in Python">Coroutines in Python</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/python.html">Python</a>.</p>
+<p>tags: <a href="/tag/coroutines.html">coroutines</a> <a href="/tag/deep-dive.html">deep-dive</a> </p>
+</footer><!-- /.post-info -->                <p>Coroutines in Python</p>
+                <a class="readmore" href="/coroutines-in-python.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/decorators-in-python.html" rel="bookmark"
+                           title="Permalink to Decorators in Python">Decorators in Python</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/python.html">Python</a>.</p>
+<p>tags: <a href="/tag/decorators.html">decorators</a> <a href="/tag/deep-dive.html">deep-dive</a> </p>
+</footer><!-- /.post-info -->                <p>Decorators in Python</p>
+                <a class="readmore" href="/decorators-in-python.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/generators-in-python.html" rel="bookmark"
+                           title="Permalink to Generators in Python">Generators in Python</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/python.html">Python</a>.</p>
+<p>tags: <a href="/tag/generators.html">generators</a> <a href="/tag/python.html">python</a> <a href="/tag/deep-dive.html">deep-dive</a> </p>
+</footer><!-- /.post-info -->                <p>Generators in Python</p>
+                <a class="readmore" href="/generators-in-python.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

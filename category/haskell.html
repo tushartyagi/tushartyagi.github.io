@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Tushar Tyagi - Haskell</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li class="active"><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/introduction-to-haskell.html">Introduction to Haskell</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/haskell.html">Haskell</a>.</p>
+<p>tags: <a href="/tag/haskell.html">haskell</a> <a href="/tag/introduction.html">introduction</a> </p>
+</footer><!-- /.post-info --><h3>Helper methods:</h3>
+<div class="highlight"><pre>    ghci&gt; methodname
+</pre></div>
+
+
+<p>where methodname can be:
+:info  -- prints information about the name passed
+:type  -- gives type information about the type
+:set   -- sets a variable for the environment
+:unset -- unsets a variable</p>
+<h3>Lists</h3>
+<ul>
+<li>Notation is: [elem1, elem2, elem2] where each elem belongs to the same type. Lists cannot have different data types.</li>
+<li>Numeric lists can use <em>enumeration notation</em> .. so that [1..5] expands to [1,2,3,4,5]. This can be useful for creating infinite lists (which are evaluated lazily).</li>
+<li>Different from python lists because those are mutable, these aren't.</li>
+<li>++ operator concatenates two lists. 
+        ghci&gt; [1] ++ [2] 
+        [1,2]</li>
+<li>: is cons operator which adds an element to the front of a list.
+        ghci&gt; 1 : [2]
+        [1, 2]</li>
+<li>Strings are list of characters. We can use the ++ and : operator on them too. The following cons-es a char to a list which is made by concatenating two strings (each is a list of Char)
+        ghci&gt; 'a' : "b" ++ "c"
+        "abc"</li>
+<li>head and tail functions return the first and all-except-first elements of a list respectively.</li>
+<li>take and drop functions take in number, list as parameters and return either the list of n numbers, or list of all numbers except first n resp. </li>
+</ul>
+<h3>Tuple</h3>
+<ul>
+<li>Notation is (elem1, elem2, elem3) where each elem may belong to a different type. </li>
+<li>The order of elements matter a lot.</li>
+<li>(123, "hello") is (Num, [Char]) whereas ("hello, 123) is ([Char], Num) where these aren't equal</li>
+<li>() is a zero element tuple. There is no one element tuple in the language. Two and three element tuples are common.</li>
+<li>As per the book, we shouldn't use them when number of elements are too many; limit the number to 3-4.</li>
+<li>fst and snd functions work on two element lists and return the first and second element of the list.</li>
+</ul>
+<h3>Type system</h3>
+<ul>
+<li>Statically and strongly typed language. <ul>
+<li>The first means that the types are checked at compile time.</li>
+<li>The second means that the types are strong, i.e. one type cannot be converted into by auto-coercian (without casting).</li>
+</ul>
+</li>
+<li>Char, Bool, Int, Integer, Double are some common types.</li>
+<li>In Haskell, variable are bound to expressions which cannot change their values during program's execution. In imperative languages, variable refer to a memory location which can contain different data during different time.
+This snippet will work fine in so many other languages, but will cause an error in Haskell
+        x = 10
+        x = 11</li>
+</ul>
+<h3>Language Constructs</h3>
+<h4>if statement</h4>
+<div class="highlight"><pre>if predicate
+then some_expression
+else some\_other_expression
+</pre></div>
+
+
+<ul>
+<li>The two expressions in if and then branches have to evaluate to the same type. We cannot have if's expression evaluating to Bool and then's expression evaluating to Int.</li>
+<li>Expressions are evaluated lazily. What the parent expression gets is a promise, called <em>thunk</em>. As long as it's value is not needed, thunk isn't evaluated. e.g (1 + 2) will keep passing around the code unless it reaches some point where the value is needed.</li>
+</ul>
+<h4>case construct</h4>
+<div class="highlight"><pre>    case value in
+        value1 -&gt; returnValue1
+        value2 -&gt; returnValue2
+        _      -&gt; returnValueN
+</pre></div>
+
+
+<h4>Polymorphism</h4>
+<ul>
+<li>Haskell support parametric polymorphism where the function body can work with any type of parameter.
+        ghci&gt; :type fst
+        fst :: (a, b) -&gt; a
+    Here the function fst doesn't really care about what the type of its parameters is. In actuality, it has no way of finding it out.</li>
+<li>Subtype polymorphism -- where the child class can override the methods of parent class -- isn't supported.</li>
+<li>Coercian polymorphism -- which allows a variable of one type to be automatically converted to other type -- isn't supported.</li>
+</ul>
+<h3>Functions</h3>
+<ul>
+<li>function signature: The arrow in the signatures are right-associative.
+        take :: Int -&gt; [a] -&gt; [a]
+    actually means
+        take :: Int -&gt; ([a] -&gt; [a])
+    which means take is a function which takes a value of type int, and returns another function which takes in a list and returns another list. This function returning another function helps in currying.</li>
+</ul>
+<h3>Data Type</h3>
+<h4>Creating new data types</h4>
+<p>The creation of data types takes the following form:
+        -- Inside the hs file
+        data TypeConstructorName = ValueConstructorName args
+                                    body of the constructor
+the TypeConstructorName and the ValueConstructor name may or may not be different. Type constructor is used only in type declaration or type signature; during actual code, the value constructor is used.</p>
+<div class="highlight"><pre>    -- hs file
+    data BookInfo = Book Int String [String]
+                    deriving (Show)
+
+    myBook = Book 123 &quot;hello&quot; [&quot;author&quot;]
+
+    ghci&gt; :info myBook
+    ghci&gt; :info BookInfo
+</pre></div>
+
+
+<p>What we are creating is <a href="https://www.haskell.org/haskellwiki/Algebraic_data_type">Algebraic Data Types</a>, called so because the definition of the datatype takes in either the sum or the product of the parameters:</p>
+<div class="highlight"><pre>    data Type1 = Int Double -- This is product, both are required
+    data Type2 = Int | Double -- This is sum, any one is required
+</pre></div>
+
+
+<p>The benefit of Algebraic Data Types is that it helps in maintaining type safety. Two Algebraic Data Types are always different, thanks to their type names, even if their signatures are same. So</p>
+<div class="highlight"><pre>    -- hs file
+    data Type1 = Type1 Int Double
+                deriving (Eq)
+    data Type2 = Type2 Int Double
+                deriving (Eq)
+
+    ghci&gt; let type1 = Type1 1 1.5
+    ghci&gt; let type2 = Type2 1 1.5
+    ghci&gt; type1 == type2 -- Error since the types are different
+</pre></div>
+
+
+<p>will not be equal. </p>
+<p>This is in contrast with two tuples of the same shape, which are equal.</p>
+<div class="highlight"><pre>    ghci&gt; (1, 1.5) == (1, 1.5)
+    True
+</pre></div>
+
+
+<p>The sum of Algebraic Data Types are used when we want to give the option of picking up one value. Bool is one such example.</p>
+<div class="highlight"><pre>    data Bool = True | False
+</pre></div>
+
+
+<h4>Pattern Matching</h4>
+<p>A function can be broken down into set of expressions which are executed based on a some specific pattern. This is called <em>pattern matching</em>.</p>
+<p>The negate function:
+        -- hs file
+        negate True = False
+        negate False = True</p>
+<div class="highlight"><pre>    ghci&gt; negate False
+    True
+</pre></div>
+
+
+<p>The parameter passed is matched against those which are defined for that function, and the value on the right side of = is returned. This way  kind of short-circuits because once a match is found, the next statements are not evaluated.</p>
+<p>Pattern matching can be used to create one-liner methods as well. </p>
+<div class="highlight"><pre>    -- hs file
+    myPower (a, b) = a ** b
+
+    ghci&gt; myPow 2 3
+    8.0
+</pre></div>
+
+
+<p>Or to create accessor methods for value constructors</p>
+<div class="highlight"><pre>    bookID (Book id title authors) = id
+    bookTitle (Book id title authors) = title
+    bookAuthors (Book id title authors) = authors
+
+    ghci&gt; bookID (Book 3 &quot;Some name&quot; [&quot;Author&quot;])
+    3
+</pre></div>
+
+
+<p>The compiler can get the types of using the signatures of our accessopr functions.</p>
+<div class="highlight"><pre>    ghci&gt; :type bookID
+    bookID :: BookInfo -&gt; Int
+</pre></div>
+
+
+<p>We can do away with writing so much, and simply providing what is absolutely neccessary in accessor functions, using wild card pattern. The WC pattern takes in anyvalue, and is represented by _</p>
+<div class="highlight"><pre>    -- hs file
+    bookID (Book id _ ) = id
+    bookTitle (Book _ title _ ) = title
+    bookAuthors (Book _ _ authors) = authors
+
+    ghci&gt; bookID (Book 3 &quot;Some name&quot; [&quot;Author&quot;])
+    3
+</pre></div>
+
+
+<p>In addition to this, we can use what is called as the <em>record syntax</em> which creates the accessors for us, and one advantage is that we can pass the parameters in whatever order we prefer. The syntax for this is:</p>
+<div class="highlight"><pre>    -- hs file
+    data Customer = Customer {
+        customerID :: CustomerID,
+        customerName :: String,
+        customerAddress :: Address
+    } deriving (Show)
+
+    ghci&gt; customer = Customer {
+        customerID = 123456,
+        customerAddress = [&quot;Hyd&quot;, &quot;India&quot;],
+        customerName = &quot;Tushar&quot;
+    }
+
+
+    ghci&gt; customerID customer
+    123456
+
+    ghci&gt; customerName customer
+    &quot;Tushar&quot;
+</pre></div>
+
+
+<p><strong>Maybe</strong> is a type constructor which is used in places where we are expecting what are otherwise called "null" values in imperative languages.</p>
+<p>The RWH explaination was a bit confusing, but after banging enough head, I came to know what it's used for.
+The definition of Maybe is like:</p>
+<div class="highlight"><pre>    Maybe a = Just a
+            | Nothing
+</pre></div>
+
+
+<p>The usage is pretty simple, once it is understood. </p>
+<h2><a href="https://www.haskell.org/tutorial/numbers.html">Num</a></h2>
+<p>I stumbled upon the different types of / division operators that behave differently for different numbers. Num type in haskell can be of tyo types:
+<em> Integral 
+</em> Fractional
+and while other arithmatic operators (+, -, *, negate, abs) are shared across both these types, there are two divisions:
+function div for whole number division
+/ operator for fractional division</p>
+<p>while the other operators can be mixed and matched (as long as they aren't hardwired from Num to something else), 
+for division we have to use either div or / based on the need.</p>
+<div class="highlight"><pre>    -- a fractional number and integral number can be added, subtracted, multiplied
+    ghci&gt; 1 + 1.5
+    2.5
+    ghci&gt; 1 - 1.5
+    0.5
+    ghci&gt; 1 * 1.5
+    1.5
+
+    -- hs file
+    divBySame :: Int -&gt; Int
+    divBySame a = a / a -- Won&#39;t work since these are hardcoded to be int
+    divBySame a = (div a a) -- This will work
+</pre></div>
+
+
+<h3>List of Common Functions</h3>
+<ul>
+<li>
+<p>break (Prelude)
+break :: (a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
+Takes in a predicate function and a list and returns two lists, broken apart at that first element where the function returns True.</p>
+</li>
+<li>
+<p>isUpper, isLower (Data.Char)
+is* :: Char -&gt; Bool</p>
+</li>
+<li>
+<p>unlines (Prelude)
+unlines :: [String] -&gt; String
+Takes in a list of strings and returns a concatenated string.</p>
+</li>
+<li>
+<p>isPrefixOf, isInfixOf, isSuffixOf (Data.List)
+is*Of :: String -&gt; String -&gt; Bool
+Takes in string1 and string2 and finds if the string1 starts, is part of, or ends string2.</p>
+</li>
+<li>
+<p>head
+head :: [a] -&gt; a
+Returns the first element</p>
+</li>
+<li>
+<p>tail
+tail :: [a] -&gt; [a]
+Returns everything except the first element</p>
+</li>
+<li>
+<p>length
+length :: [a] -&gt; Int
+Returns the length of the list</p>
+</li>
+<li>
+<p>null
+null :: [a] -&gt; Bool
+Returns if the list is empty</p>
+</li>
+<li>
+<p>last
+last :: [a] -&gt; a
+Returns the list element of the list. This is spiritually connected to head.</p>
+</li>
+<li>
+<p>init
+init :: [a] -&gt; [a]
+Returns the list of elements excluding the last. This is spiritually connected to tail.</p>
+</li>
+</ul>
+<p>A lot of methods working with lists throw error in case an empty list is passed to them.</p>
+<div class="highlight"><pre>* Using lenght is inefficient since it walks through the whole lists, and also because H supports infinite lists, which can screw up things.
+</pre></div>
+
+
+<ul>
+<li>
+<p>The best approach is to use null check in if statements
+        fun1 xs = if null xs then ... else ...</p>
+<div class="highlight"><pre>fun2 (x:_) = do something with x
+fun2 [] = do something else
+</pre></div>
+
+
+</li>
+<li>
+<p>concat
+concat :: [[a]] -&gt; [a]
+Takes in a list of lists, and concatenates them; also removes one level of nesting.</p>
+</li>
+<li>
+<p>reverse
+reverse :: [a] -&gt; [a]
+Reverses the list</p>
+</li>
+<li>
+<p>all, any
+f :: (a -&gt; Bool) -&gt; [a] -&gt; Bool
+Takes in a predicate and list. Return true if all or any one of the elements matches the predicate.</p>
+</li>
+<li>
+<p>take, drop
+f :: Int -&gt; [a] -&gt; [a]
+Returns a sublist by taking or dropping first n elements from the list.</p>
+</li>
+<li>
+<p>splitAt
+f :: Int -&gt; [a] -&gt; ([a], [a])
+Returns a two-tuple by splitting the input list across the given index.</p>
+</li>
+<li>
+<p>takeWhile
+f :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+Takes in a predicate function and returns a list. This list is generated by taking elements as long as the predicate returns True.</p>
+</li>
+<li>
+<p>dropWhile
+f :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+Takes in a predicate function and returns a list. This list is generated by removing elements as long as the predicate returns True. When predicate returns false, the remaining elements are returned.</p>
+</li>
+<li>
+<p>span, break
+f :: (a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
+break splits the list when predicate returns true.
+split splits the list when predicate returns false.
+The element around which list is split goes to the second sublist.</p>
+</li>
+<li>
+<p>elem
+elem :: (Eq a) =&gt; a -&gt; [a] -&gt; Bool
+Returns true if the passed element is part of the passed list.</p>
+</li>
+<li>
+<p>filter
+filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+Takes in a predicate and creates a list of all the elements which passed the predicate test.</p>
+</li>
+<li>
+<p>zip
+zip :: [a] -&gt; [b] -&gt; [(a, b)]
+Takes in two lists and creates a new list containing pairs of elements picked from both the lists. Length is equal to the length of the shorter list.</p>
+</li>
+<li>
+<p>zipWith
+zipWith :: (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+Zips the two list into a third list, the function is then applied to the elements of the resulting list (after zip) and the results are provided in the final list.</p>
+</li>
+<li>
+<p>words, unwords
+words :: String -&gt; [String]
+unwords :: [String] = String</p>
+</li>
+</ul>
+<p>words takes in a string and splits it across whitespace
+unwords takes in list of strings and joins then using a single space</p>
+<ul>
+<li>
+<p>map
+map :: (a -&gt; b) -&gt; [a] -&gt; [b]
+map returns a new list resulting from applying the function on every element of the list</p>
+</li>
+<li>
+<p>foldl, foldr
+foldl :: (a -&gt; b -&gt; a) -&gt; a -&gt; [b] -&gt; a
+Takes in an accumulator function, an init value for the accumulator and a list. Do something to every element of the list, updating an accumulator as we go, then return the accumulator.</p>
+</li>
+</ul>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

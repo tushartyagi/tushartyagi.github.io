@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Tushar Tyagi - decorators</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/decorators-in-python.html">Decorators in Python</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/python.html">Python</a>.</p>
+<p>tags: <a href="/tag/decorators.html">decorators</a> <a href="/tag/deep-dive.html">deep-dive</a> </p>
+</footer><!-- /.post-info --><h2>Why do we use functions?</h2>
+<p>Functions were introduced in programming to reduce clutter and to improve
+reusability and readability. Any piece of code which</p>
+<ul>
+<li>repeated itself multiple time</li>
+<li>had an independent context</li>
+</ul>
+<p>could be taken away and recreated as a function. This function was then called
+wherever that piece of code was required.</p>
+<p>As the code grows, we may have some code inside a function which is repeated,
+and has a meaning independent of the parent function. We can again take that
+piece of code outside the function, and create another function out of it.</p>
+<h2>And Decorators?</h2>
+<p>Decorators follow somewhat same coding pattern. They are constructs that allow
+us to change the way function behaves at runtime, and add new features to it
+which are otherwise independent of that function.</p>
+<p>Let's take a function which formats and prints the contents of a logfile. For
+some cases, you also want to add security to it so that only the valid users
+can execute it. What do you do? You go ahead and change the body of the
+function, adding security inside of it.</p>
+<p>Then after some days, you need to add the same security logic to the login
+module of your application. While we're at it, let's add the same security
+logic to the file manager of the app.
+sssss
+Does it make sense to open up the existing code and add some reusable
+functionality which is independent of the module logic? This is where
+decorators shine.</p>
+<p>Decorators allow us to enhance or entirely change the logic of a function
+at runtime, without changing the body of a function. </p>
+<p>We use functions in order to avoid repetitive code, i.e. any piece of code which
+repeats itself multiple times is hidden behind a function. Using the same logic
+if we have some code that is a part of multiple functions, and is independent
+of the function's core behavior, can be hidden in a decorator. During runtime,
+the decorator modifies the behavior of the function, without modifying
+function's body.</p>
+<h3>Useful Concepts</h3>
+<p>Before jumping into the code of decorators, let's check out what is already
+present for us.</p>
+<h4>Functions as Objects</h4>
+<p>Python provides the functionality of treating functions as first class objects,
+so anything that can be done with objects can be done with functions.
+We can</p>
+<p>a. Pass them around</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">f</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">execute_function</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="n">f</span><span class="p">()</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">execute_function</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">foo</span>
+</pre></div>
+
+
+<p>b. Store them in tuples/lists</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">f</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">g</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">h</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;baz&quot;</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">fun_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">fun_tuple</span><span class="p">:</span>
+        <span class="n">function</span><span class="p">()</span>
+<span class="n">foo</span>
+<span class="n">bar</span>
+<span class="n">baz</span>
+</pre></div>
+
+
+<p>c. Add attributes</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">f</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span>
+
+<span class="n">f</span><span class="o">.</span><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Me&#39;</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">__author__</span><span class="p">)</span>
+<span class="n">Me</span>
+</pre></div>
+
+
+<h4>Inner functions and closures</h4>
+<p>Functions can also contain other functions and these inner functions have
+access to the data of the parent function, even after the outer function is
+no longer present in the scope.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">outer</span><span class="p">(</span><span class="n">arg_outer</span><span class="p">):</span>
+    <span class="n">outer_data</span> <span class="o">=</span> <span class="s">&quot;some data&quot;</span>
+    <span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="n">arg_inner</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;arg_inner: &quot;</span><span class="p">,</span> <span class="n">arg_inner</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;arg_outer: &quot;</span><span class="p">,</span> <span class="n">arg_outer</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;arg_outer: &quot;</span><span class="p">,</span> <span class="n">outer_data</span><span class="p">)</span>
+    <span class="n">inner</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">outer</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
+<span class="mi">12</span>
+<span class="mi">21</span>
+<span class="n">some</span> <span class="n">data</span>
+</pre></div>
+
+
+<h3>Syntax</h3>
+<p>Decorators are just functions which take a function, modify and return it.
+<strong>Returning a function</strong> is an important aspect of decorating the function.
+Whatever a decorator returns has to be callable, it can either be another
+function, or a class which implements <code>__call__</code> method.</p>
+<p>The syntax is straight forward:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">deco</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="c"># Let new_func = do something to func</span>
+    <span class="k">return</span> <span class="n">new_func</span>
+</pre></div>
+
+
+<p>And we can use it like this:</p>
+<div class="highlight"><pre><span class="nd">@deco</span>
+<span class="k">def</span> <span class="nf">some_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+
+<p>And behind the scenes, this happens:</p>
+<div class="highlight"><pre><span class="n">some_func</span> <span class="o">=</span> <span class="n">deco</span><span class="p">(</span><span class="n">some_func</span><span class="p">)</span>
+</pre></div>
+
+
+<p>So the original function is replace with the modified function.</p>
+<h3>Some examples which make sense</h3>
+<p>Let's just say that you have some very expensive functions which are
+finding solutions to some of the greatest problems ever encountered by mankind.
+These aren't called just like that since they're expensive computationally, and
+hence we'll have to log each one of them.</p>
+<p>One way of doing that is to add the logging statements inside each of the
+functions, something like:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">expensive_func_1</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;expensive_func_1 called at &quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%H:%M:%S&quot;</span><span class="p">))</span>
+    <span class="c"># do something expensive</span>
+
+<span class="k">def</span> <span class="nf">expensive_func_2</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;expensive_func_2 called at &quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%H:%M:%S&quot;</span><span class="p">))</span>
+    <span class="c"># do something expensive</span>
+</pre></div>
+
+
+<p>Now adding something like this has multiple bad things.
+<em> We are going against the practice of DRY (Don't repeat yourself)
+</em> The logging isn't required by the function to do its job -- it's an addon.
+So it shouldn't be part of it.</p>
+<p>So we sense that it's repeated code, and repeated code needs to have a function
+for itself. But function inside function?? Yes that's possible and we can have
+something like:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">log_it</span><span class="p">(</span><span class="n">func_name</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">func_name</span><span class="p">,</span> <span class="s">&quot; called at &quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%H:%M:%S&quot;</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">expensive_func_1</span><span class="p">():</span>
+    <span class="n">log_it</span><span class="p">(</span><span class="n">expensive_func_1</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+    <span class="c"># do something expensive</span>
+
+<span class="k">def</span> <span class="nf">expensive_func_2</span><span class="p">():</span>
+    <span class="n">log_it</span><span class="p">(</span><span class="n">expensive_func_2</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+    <span class="c"># do something expensive</span>
+</pre></div>
+
+
+<p>But again, we are including something inside a function that shouldn't be part
+of it. It's code inside a function that repeats itself, but isn't really needed
+inside it. So in situations like these, we can start using generators.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">log_it</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">new_func</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&quot;started at &quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strf_time</span><span class="p">(</span><span class="s">&quot;%H:%M:%S&quot;</span><span class="p">))</span>
+        <span class="n">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">new_func</span>
+</pre></div>
+
+
+<p>What happened? We just created a decorator.
+Like I mentioned before, a decorator is a function which changes another
+function, in a way enhances it's working. So this generator takes in an
+expensive function and returns another function which</p>
+<p>a. print the log time
+b. calls expensive function.</p>
+<p>And how's it different from the previous approach?
+Because it's nicer to look, for starters. This is how we use it:</p>
+<div class="highlight"><pre><span class="nd">@log_it</span>
+<span class="k">def</span> <span class="nf">expensive_func_1</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Running expensive_func_1&quot;</span><span class="p">)</span>
+
+<span class="nd">@log_it</span>
+<span class="k">def</span> <span class="nf">expensive_func_2</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Running expensive_func_2&quot;</span><span class="p">)</span>
+
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">expensive_func_1</span><span class="p">()</span>
+<span class="n">expensive_func_1</span> <span class="n">started</span> <span class="n">at</span> <span class="mi">21</span><span class="p">:</span><span class="mi">36</span><span class="p">:</span><span class="mo">03</span>
+<span class="n">Running</span> <span class="n">expensive_func_1</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">expensive_func_2</span><span class="p">()</span>
+<span class="n">expensive_func_2</span> <span class="n">started</span> <span class="n">at</span> <span class="mi">22</span><span class="p">:</span><span class="mi">36</span><span class="p">:</span><span class="mo">03</span> <span class="c"># It&#39;s expensive</span>
+<span class="n">Running</span> <span class="n">expensive_func_2</span>
+</pre></div>
+
+
+<p>While this doesn't seem much at such small scale, the most important point in 
+the favor of decorators is that they are independent of function body. So, 
+let's say you have to do some extra logging in one of the functions; with the
+previous approach, we'll have to change the name of the function call inside
+the expensive function, like:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">expensive_func_2</span><span class="p">():</span>
+    <span class="n">better_log_it</span><span class="p">(</span><span class="n">expensive_func_2</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+    <span class="c"># do something expensive</span>
+</pre></div>
+
+
+<p>With generators, we don't have to touch the body of the expensive function:</p>
+<div class="highlight"><pre><span class="nd">@better_log_it</span>
+<span class="k">def</span> <span class="nf">expensive_func_2</span><span class="p">():</span>
+    <span class="c"># do something expensive</span>
+</pre></div>
+
+
+<p>Still not impressed? Let's take the thing a bit further:</p>
+<h4>Decorator chaining</h4>
+<p>Decorator syntax is influenced by mathematical functions. In mathematics,
+the statement: <code>h(g(f(x)))</code> means that function g will take the the output of
+f, and function h will take use to the output of g for the calculation.</p>
+<p>You can chain decorators as well:</p>
+<div class="highlight"><pre><span class="nd">@h</span>
+<span class="nd">@g</span>
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="c"># do something with x</span>
+</pre></div>
+
+
+<p>This modifies the function f like this:</p>
+<div class="highlight"><pre>f = h(g(f(x)))
+</pre></div>
+
+
+<h3>Passing arguments in decorators</h3>
+<p>Since decorator is a function, we can pass arguments to it as well. These
+arguments can then go and change the way a decorator behaves and hence change
+the way it decorates the function.</p>
+<p>Uptil now, we were using decorators without any arguments, and the syntax was:</p>
+<div class="highlight"><pre><span class="nd">@deco_without_args</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">farg1</span><span class="p">,</span> <span class="n">farg2</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+
+<p>And the decorator body was returning a callable, either a function or a class
+which implemented <strong>call</strong> method. I'll repeat the code here once again to be
+more clear:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">deco_without_args</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c"># do something with func, possibly func(*args, **kwargs</span>
+    <span class="k">return</span> <span class="n">wrapped_func</span>
+</pre></div>
+
+
+<p>The syntax of decorator with arguments is:</p>
+<div class="highlight"><pre><span class="nd">@deco_with_args</span><span class="p">(</span><span class="n">darg1</span><span class="p">,</span> <span class="n">darg2</span><span class="p">,</span> <span class="n">darg3</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">farg1</span><span class="p">,</span> <span class="n">farg2</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+
+<p>And since the decorator is being called here (it's clear from the () operator),
+the decorator call itself should return a callable. It's another way of saying
+that since decorator is a function, this syntax means that the function call
+should return another function. How can we achieve that? Like this:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">deco_with_args</span><span class="p">(</span><span class="n">darg1</span><span class="p">,</span> <span class="n">darg2</span><span class="p">,</span> <span class="n">darg3</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">actual_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="c"># do something with func, possibly func(*args, **kwargs)</span>
+        <span class="k">return</span> <span class="n">wrapped_func</span>
+    <span class="k">return</span> <span class="n">actual_decorator</span>
+</pre></div>
+
+
+<p>Since both the argument list of darg* and the decoratee function func are
+accessible inside wrapped_func, we can use them to modify the function in
+whatever ways we desire.</p>
+<p>Let's take the case wherein we want the logging decorator to be able to can
+print the date and time based on some specific format. We will pass the format
+as argument of the decorator.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">format_and_log</span><span class="p">(</span><span class="n">fmt_string</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">deco</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">new_func</span><span class="p">():</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&quot;started at &quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strf_time</span><span class="p">(</span><span class="n">fmt_string</span><span class="p">))</span>
+            <span class="n">func</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">new_func</span>
+    <span class="k">return</span> <span class="n">deco</span>
+
+
+<span class="nd">@format_and_log</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="s">/%m/%y %H:%M:%S&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">expensive_func_3</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Expensive function 3&quot;</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">expensive_func_3</span><span class="p">()</span>
+<span class="n">expensive_func_3</span> <span class="n">started</span> <span class="n">at</span>  <span class="mi">20</span><span class="o">/</span><span class="mo">02</span><span class="o">/</span><span class="mi">15</span> <span class="mi">11</span><span class="p">:</span><span class="mi">47</span><span class="p">:</span><span class="mi">30</span>
+<span class="n">Expensive3</span> <span class="n">function</span> <span class="mi">3</span>
+</pre></div>
+
+
+<p>With this, the major ideas with respect to decorators are covered. The
+possibilities of using decorators to create reusable code, and removing the
+clutter from functions are there. </p>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

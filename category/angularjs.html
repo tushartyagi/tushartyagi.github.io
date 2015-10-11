@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Tushar Tyagi - AngularJS</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/angular-providers.html">Angular Providers</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-03-21T00:00:00+05:30">
+                Published: Sat 21 March 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/angularjs.html">AngularJS</a>.</p>
+<p>tags: <a href="/tag/angular.html">angular</a> </p>
+</footer><!-- /.post-info --><h1>Angular Providers</h1>
+<h3>A digression into Services</h3>
+<p>Before we start with what providers are, we need to understand what is meant
+by Service. According to AngularJS docs, it's <em>a substitutable object which
+wires the application together and work through dependency injection.</em>
+Substitutable here also means that it is injectable through dependency
+injection. </p>
+<p>That sums it up pretty nicely. Anytime you need to provide some sort of
+"service", with API which you've defined, you need to create a service. In
+contrast, Directives, Controllers, Filters use the API provided by Angular,
+with Service you can provide your own API.</p>
+<p>We use the <code>$provide</code> service to create new services. <code>$provide</code> provides
+multiple recipes -- which are just the structure we follow when creating our
+own service. Notice that while the structure of creating recipes is fixed, 
+the API you open up in these recipes depend entirely on you.</p>
+<p>The recipes (in the order I'll explain them) are:</p>
+<ol>
+<li>value</li>
+<li>factory</li>
+<li>constant</li>
+<li>provider</li>
+<li>service </li>
+</ol>
+<h3>The Confusing Names!!</h3>
+<p>If you notice above, we are using <code>$provide</code> service to create different
+service recipes. One of the recipes is called <code>provider</code> and another is called
+<code>service</code>. But <code>provider</code> isn't a provider; both of these are service
+recipes. What is happening here?</p>
+<p>We first need to understand that providers and services are two different
+concepts. Angular itself provides some services for core functionality, apart
+from <code>$provide</code>, some examples are <code>$http</code>, <code>$route</code>, <code>$resource</code>, etc. Each
+service (as noted above) exposes a different api to provide its functionality.</p>
+<p>Every provider recipe also gets a serviceProvider, which is
+"serviceName + Provider". So the above services will have <code>$httpProvider</code>,
+<code>$routeProvider</code>, etc.</p>
+<p>The relationship between these two is that the serviceProvider is used to
+configure the service instances, during the bootstrap, more on that later.</p>
+<p>I'll be using the following html, just plug it into the body and include
+angular and script.js file</p>
+<div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">ng-app=</span><span class="s">&quot;app&quot;</span> <span class="na">ng-controller=</span><span class="s">&quot;MyController&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;distance&quot;</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;button</span> <span class="na">ng-click=</span><span class="s">&quot;calcTime()&quot;</span><span class="nt">&gt;</span>Calculate Distance<span class="nt">&lt;/button&gt;</span>
+  <span class="nt">&lt;div&gt;</span>The time required is: {{ spaceTime }}<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+
+
+<p>Let's start with the recipes.</p>
+<h3>value recipe</h3>
+<p>The first one is value recipe, which allows you to create a key value mapping.
+The value can be a valid javascript object.</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s2">&quot;app&quot;</span><span class="p">,</span> <span class="p">[]);</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">value</span><span class="p">(</span><span class="s2">&quot;speedOfLight&quot;</span><span class="p">,</span> <span class="mf">3.8E8</span><span class="p">);</span>
+</pre></div>
+
+
+<p>The drawback of using a value recipe is that it doesn't allow dependencies, it
+is only allowed to hold module wide "static" values which don't change. The
+speed of light is one such example. </p>
+<p>The factory, provider, and service recipes mitigate this drawback.</p>
+<h3>factory recipe</h3>
+<p>The second recipe is factory recipe and is created using <code>factory</code> function. </p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s2">&quot;timeCalcFactory&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;speedOfLight&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">distance</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span> <span class="nx">distance</span> <span class="o">/</span> <span class="nx">c</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">time</span><span class="p">;</span>
+    <span class="p">};</span>
+<span class="p">});</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s2">&quot;MyController&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;$scope&quot;</span><span class="p">,</span> <span class="s2">&quot;spaceTimeCalc&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">spaceTimeCalc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">$scope</span><span class="p">.</span><span class="nx">distance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="c1">// use calcTime with ng-click</span>
+    <span class="nx">$scope</span><span class="p">.</span><span class="nx">calcTime</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> 
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">spaceTime</span> <span class="o">=</span> <span class="nx">spaceTimeCalc</span><span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">distance</span><span class="p">);</span>
+    <span class="p">};</span>
+<span class="p">}]);</span>
+</pre></div>
+
+
+<p>A few takeaway by the factory code:</p>
+<ol>
+<li>It can depend on the values from other service recipes, <code>speedOfLight</code> in
+the previous code is value recipe, but factory can take other factories,
+providers, services, etc.</li>
+<li>It has to return a function or an object which provides the functionality,
+and it is this returned value which is injected. What to return will depend on
+the use case, if it has to be callable, return a function, if you want multiple
+properties then return an object and access them from this object.</li>
+</ol>
+<p>The following code converts the previous factory to one which returns an
+object. The controller has been changed accordingly: </p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;spaceTimeCalc&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;speedOfLight&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="nx">getTime</span><span class="o">:</span>  <span class="kd">function</span><span class="p">(</span><span class="nx">distance</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span>  <span class="nx">distance</span> <span class="o">/</span> <span class="nx">c</span><span class="p">;</span>
+            <span class="k">return</span> <span class="nx">time</span><span class="p">;</span>
+        <span class="p">},</span>
+    <span class="p">};</span>
+<span class="p">}]);</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s2">&quot;MyController&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;$scope&quot;</span><span class="p">,</span> <span class="s2">&quot;spaceTimeCalc&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">spaceTimeCalc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">$scope</span><span class="p">.</span><span class="nx">distance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="c1">// use calcTime with ng-click</span>
+    <span class="nx">$scope</span><span class="p">.</span><span class="nx">calcTime</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> 
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">spaceTime</span> <span class="o">=</span> <span class="nx">spaceTimeCalc</span><span class="p">.</span><span class="nx">getTime</span><span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">distance</span><span class="p">);</span>
+    <span class="p">};</span>
+<span class="p">}]);</span>
+</pre></div>
+
+
+<h3>Caching</h3>
+<p>One thing to keep in mind is that the value returned by the recipes are cached
+the moment recipe is called. It is only this cached "first value" which is
+returned on subsequent calls to the recipe.</p>
+<h3>A digression: phases in angular</h3>
+<p>We are soon going to discuss constant and provider recipe, but before that
+we'll see how the angular compiles and runs the application by dividing it
+into two phases: <code>config</code> and <code>run</code>.</p>
+<p>The config phase is used to do the application wide configuration, and allows
+only access to provider and constant recipes.
+So for example, <code>ngRoute</code> is used for application level routing and hence it
+is configured here. Other service recipes aren't allowed to run in this phase,
+because there's a chance that their dependencies have not been initialised.</p>
+<p>The run phase comes after the config phase and it is during this time the
+application starts to initialise services, factories, values, directives,
+controllers, etc. providers and constants are not allowed to run during this
+phase.</p>
+<h3>constant recipe</h3>
+<p>constant recipe is similar to value recipe, but as noted above it isn't allowed
+to run during the <code>run</code> phase. So in order to provide "static" values to
+<code>provider</code> we can use <code>constant</code>. The above <code>value</code> recipe 
+can be converted to <code>constant</code> like this (be sure to remove the value if you're
+using the same file):</p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">constant</span><span class="p">(</span><span class="s1">&#39;speedOfLight&#39;</span><span class="p">,</span> <span class="mf">3.8E8</span><span class="p">);</span>
+</pre></div>
+
+
+<h3>provider recipe</h3>
+<p>The <code>provider</code> recipe is the most versatile of all the recipes and provides the
+syntactic sugar for other recipes. If we check out the <a href="https://github.com/angular/angular.js/blob/master/src/auto/injector.js#L665">source</a>
+, we see that <code>value</code> and <code>service</code> internally call <code>factory</code>, which
+internally calls <code>provider</code>. </p>
+<p>In order to work, the <code>provider</code> needs you to the implement a method called
+<code>$get</code>. When <code>$get</code> is called, the provider should return a factory object
+(which is cached and returned on further calls to provider). </p>
+<p>Implementing the above factory code as provider, we see that the property
+<code>$get</code> is a method which returns the factory function. This is an important
+point, whatever we have written as the factory function doesn't become
+the <code>$get</code> method; that function is returned when <code>$get</code> is called. Of course,
+if we would have implemented with the second approach above, <code>$get</code> would have
+returned an object containing <code>getTime</code> method.</p>
+<div class="highlight"><pre><span class="c1">// The provider depends on the value of speedOfLight constant</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">provider</span><span class="p">(</span><span class="s1">&#39;spaceTimeCalc&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;speedOfLight&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">speedOfLight</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">$get</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// The factory function we had before is returned when the $get </span>
+        <span class="c1">// method is called. </span>
+        <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">distance</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span>  <span class="nx">distance</span> <span class="o">/</span> <span class="nx">speedOfLight</span><span class="p">;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;The time required is: &quot;</span><span class="p">,</span> <span class="nx">time</span><span class="p">);</span>
+            <span class="k">return</span> <span class="nx">time</span><span class="p">;</span>
+        <span class="p">};</span>
+    <span class="p">};</span>
+<span class="p">}]);</span>
+</pre></div>
+
+
+<p>So whenever <code>$get</code> is called, it has to return the service instance, which is
+cached and used on subsequent calls.</p>
+<p>Using this code, we don't have to make changes to our controller. If we join
+the code above and below, we come to realise that <code>spaceTimeCalc</code> below is the
+function returned by <code>$get</code> above and hence takes in the distance parameter
+and use it in some constructive way.</p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s2">&quot;MyController&quot;</span><span class="p">,</span> <span class="cp">[</span><span class="s2">&quot;$scope&quot;</span><span class="p">,</span> <span class="s2">&quot;spaceTimeCalc&quot;</span><span class="p">,</span> <span class="nx">function</span><span class="p">(</span><span class="nv">$scope</span><span class="p">,</span> <span class="nx">spaceTimeCalc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$scope.distance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="nv">$scope.calcTime</span> <span class="o">=</span> <span class="nx">function</span><span class="p">()</span> <span class="p">{</span> 
+        <span class="nv">$scope.spaceTime</span> <span class="o">=</span> <span class="nx">spaceTimeCalc</span><span class="p">(</span><span class="nv">$scope.distance</span><span class="p">);</span>
+    <span class="p">};</span>
+<span class="p">}</span><span class="cp">]</span><span class="p">);</span>
+</pre></div>
+
+
+<h3>Why all this ho-haa for?</h3>
+<p>The only question now remains (apart from the discussion of service recipe),
+is why to use providers at all? As per the
+<a href="https://docs.angularjs.org/guide/providers">docs</a>,</p>
+<blockquote>You should use the Provider recipe only when you want to expose
+an API for application-wide configuration that must be made before the
+application starts.</blockquote>
+
+<p><br/>
+<em>Before the application starts</em> is the key thing here: we're talking about
+<code>config</code> phase. If we want to configure the provider in some application
+wide way, then we should be using providers. </p>
+<p>Let's say that due to some glitches in scientific studies, we've come to
+realise that the speed of life isn't as constant as we think it is, and now
+depends on the fraction of "ho-haa" value. So our application has to take the
+correct value whenever it starts. Now we have to change the provider, and we'll
+expose and API for application wide configuration:</p>
+<p>We'll make the necessary changes in the provider, just to expose some API:</p>
+<div class="highlight"><pre><span class="c1">// A provider we can configure</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">provider</span><span class="p">(</span><span class="s1">&#39;spaceTimeCalc&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;speedOfLight&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">speedOfLight</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// mitigate evil this</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="nx">self</span><span class="p">.</span><span class="nx">hoHaa</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="nx">self</span><span class="p">.</span><span class="nx">$get</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">distance</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span> <span class="nx">distance</span> <span class="o">/</span> <span class="p">(</span><span class="nx">speedOfLight</span> <span class="o">*</span> <span class="nx">self</span><span class="p">.</span><span class="nx">hoHaa</span><span class="p">);</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;The time required is: &quot;</span><span class="p">,</span> <span class="nx">time</span><span class="p">);</span>
+            <span class="k">return</span> <span class="nx">time</span><span class="p">;</span>
+        <span class="p">};</span>
+    <span class="p">};</span>
+    <span class="nx">self</span><span class="p">.</span><span class="nx">setHoHaa</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">hoHaa</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">hoHaa</span> <span class="o">=</span> <span class="nx">hoHaa</span><span class="p">;</span>
+    <span class="p">};</span>
+<span class="p">}]);</span>
+</pre></div>
+
+
+<p>The <code>setHoHaa</code> method allows us to make changes in the values of provider. Now
+we just need to call it before the application starts running, and for that
+we'll use <code>config</code> method.</p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">config</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">spaceTimeCalcProvider</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">spaceTimeCalcProvider</span><span class="p">.</span><span class="nx">setHoHaa</span><span class="p">(</span><span class="mf">0.5</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+
+
+<p>I've used the name <code>spaceTimeCalcProvider</code> in there, that's because we're
+configuring the provider, and not the service that it provides. </p>
+<p>If we now run the application, we'll get double the values that what
+we were getting before. </p>
+<h3>service recipe</h3>
+<p>The last recipe for creating a service is called <code>service</code>. The naming isn't up
+to the mark here, with so many confusing terms. Anyways, the service recipe is
+used when we use a constructor function for our object creation. </p>
+<p>Let's convert the above code to a constructor function, which depends on some
+other services to work correctly. These dependencies are passed as parameters
+of the constructor. Since we have only one, <code>speedOfLight</code>, that becomes the
+parameter.</p>
+<div class="highlight"><pre><span class="c1">// The dependency goes into the params, there can be multiple dependencies</span>
+<span class="kd">var</span> <span class="nx">DistanceCalc</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">speedOfLight</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// This method uses other service, which has already been injected</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">getTime</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">distance</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span> <span class="nx">distance</span> <span class="o">/</span> <span class="nx">speedOfLight</span><span class="p">;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;The time required is:  &quot;</span><span class="p">,</span> <span class="nx">time</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nx">time</span><span class="p">;</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>If you noticed, I wrote above that <code>service</code> internally calls <code>factory</code> (which
+again calls provider) to run. So we'll first look at the factory syntax of
+using a constructor.</p>
+<p>Going ahead with the logic, that the object/function returned by factory call
+is cached and used, we get:</p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;spaceTimeCalc&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;speedOfLight&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">speedOfLight</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">DistanceCalc</span><span class="p">(</span><span class="nx">speedOfLight</span><span class="p">);</span>
+<span class="p">}]);</span>
+</pre></div>
+
+
+<p>Every new call to spaceTimeCalc won't create a new object; the first one
+created will be reused again and again.</p>
+<p>There's a shortcut to the above syntax, which is called the <code>service</code> recipe:</p>
+<div class="highlight"><pre><span class="c1">// The syntax isn&#39;t a function, it&#39;s list of dependencies</span>
+<span class="c1">// followed by the constructor function</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">service</span><span class="p">(</span><span class="s1">&#39;spaceTimeCalc&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;speedOfLight&#39;</span><span class="p">,</span> <span class="nx">DistanceCalc</span><span class="p">]);</span>
+</pre></div>
+
+
+<p>Keep in mind the last array element isn't a function like the other recipes.</p>
+<p>The corresponding controller isn't much different:</p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s2">&quot;MyController&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;$scope&quot;</span><span class="p">,</span> <span class="s2">&quot;spaceTimeCalc&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">spaceTimeCalc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">$scope</span><span class="p">.</span><span class="nx">distance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="nx">$scope</span><span class="p">.</span><span class="nx">calcTime</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> 
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">spaceTime</span> <span class="o">=</span> <span class="nx">spaceTimeCalc</span><span class="p">.</span><span class="nx">getTime</span><span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">distance</span><span class="p">);</span>
+    <span class="p">};</span>
+<span class="p">}]);</span>
+</pre></div>
+
+
+<h3>Parting Words</h3>
+<p>This sums up how we can use the different recipes in our apps. While the
+examples are minimal at best, I hope these do a sufficient job of explaining
+how to create services, when to choose which and how all of these are
+interconnected to each other.</p>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Python Weekly Module: Itertools</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li class="active"><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/drafts/python-wm-itertools.html" rel="bookmark"
+           title="Permalink to Python Weekly Module: Itertools">Python Weekly Module: Itertools</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-04-10T00:00:00+05:30">
+                Published: Fri 10 April 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/python.html">Python</a>.</p>
+<p>tags: <a href="/tag/itertools.html">itertools</a> <a href="/tag/python.html">python</a> <a href="/tag/weekly-module.html">weekly-module</a> </p>
+</footer><!-- /.post-info -->      <h1>Python Weekly Module: Itertools</h1>
+<p>I started going through python modules so that I have a better grasp of the
+standard library. Python comes with "batteries included", so why shouldn't I
+use them?</p>
+<p>I hope that one week will be sufficient for one module, it may be less in
+some cases, then I'll try to figure out the best way to complete it in time,
+or let it take it some time over the next week.</p>
+<p>This is the first iteration of WeeklyModules, an idea taken from
+<a href="http://pymotw.com/2/contents.html">pymotw.com</a>.</p>
+<p>I'll also try to start with Rust Weekly Crate and Javascript Weekly Pattern
+(since it only has functions for almost everything). I hope the by doing this,
+I'll have some  better idea about these languages, and I do plan to create
+something out of every module which makes sense in real world. I just hope I
+don't run out of ideas, and/or steam.</p>
+<p>Coming back, this week (Apr 10 2015) I'm gonna start with <code>itertools</code> which
+kind of extends on my previous article on iterators.</p>
+<h3>chain()</h3>
+<p>This method takes in iterators, iterates through each one, and returns the
+elements. The iteration through iterators is serial, i.e. once the first
+iterator is exhausted, it moves to the second one, and then through the
+others to the last one.</p>
+<p>We have three iterators here, and I'll use <code>chain</code> to go from one to another</p>
+<div class="highlight"><pre>iter1 = &#39;abcd&#39;
+iter2 = (x for x in range(5))
+iter3 = [x for x in &#39;word&#39;]
+
+for i in chain(iter1, iter2, iter3): print(i)
+a
+b
+c
+d
+0
+1
+2
+3
+4
+w
+o
+r
+d
+</pre></div>
+
+
+<h3>compress()</h3>
+<p><code>compress</code> method takes in an two iterators, and maps the values of both
+one-to-one and returns the value of first iterator if the value of second
+iterator is <code>True</code>, the values corresponding to <code>False</code> are not returned.
+Keep in mind that <code>False</code> can also be something like an empty dict, an
+empty list, etc.</p>
+<p>Compression halts if any iterator gets exhausted.</p>
+<div class="highlight"><pre>isvowel = lambda x : x in [&#39;a&#39;, &#39;e&#39;, &#39;i&#39;, &#39;o&#39;, &#39;u&#39;]
+</pre></div>
+
+
+<h3>*while()</h3>
+<p>This contains two methods, <code>dropwhile()</code> and <code>takewhile()</code>. Each method
+expects two arguments:  a predicate function, and an  iterator.</p>
+<p><code>dropwhile</code> keeps on "dropping" or rejecting values until the predicate
+function returns true, and then returns all the remaining values of the
+iterator.</p>
+<div class="highlight"><pre>[x for x in dropwhile(lambda x: x &lt; 5
+</pre></div>
+
+
+<p><code>takewhile</code> keeps on "taking" or listing the values until the predicate
+function returns true, and then it terminates.</p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

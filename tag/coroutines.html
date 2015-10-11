@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Tushar Tyagi - coroutines</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/coroutines-in-python.html">Coroutines in Python</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/python.html">Python</a>.</p>
+<p>tags: <a href="/tag/coroutines.html">coroutines</a> <a href="/tag/deep-dive.html">deep-dive</a> </p>
+</footer><!-- /.post-info --><p>Coroutines have always seemed to be an interesting concept to me, although I've
+never dived deep in that concept. When I first heard the name while trying to
+learn Lua (which I didn't pursue), I thought this was just another fancy
+name of subroutines.</p>
+<p>Before going further, we have to notice the similarities and differences
+between the concepts of subroutines and coroutines.</p>
+<p>Subroutines are the normal functions that we have, they may or may not return
+a value. Coroutines are a lot like subroutines, but instead of returning values
+they <em>yield</em> values.</p>
+<p>A subroutine works in context to a parent function. So the parent code can be
+made up of multiple subroutines, with each one executing, doing its work, and
+getting destroyed once the work is complete. If the parent calls again, a new
+instance of subroutine is created and executed which is independent of the
+previous call.</p>
+<p>In contrast, a coroutine can start executing, do its work, pause, and  return
+to the parent. When the parent calls again, the coroutine starts from where it
+paused during the previous call.</p>
+<p>The best real world application I could find was using Coroutines for
+implementing finite state machines, since these too store their current state
+and move to another state based on inputs, and resume execution once the
+next state has finished its job.</p>
+<p>Before implementing finite state machines using coroutines, let's start with
+the syntax.</p>
+<h3>Syntax of Coroutines</h3>
+<p>Coroutine derive its syntax from generator because both of these work on the
+concept of pausing and yielding values.</p>
+<p>As we've seen in Generator functions, we can either return a value which
+completes the execution of a function, or we can yield a value which
+temporarily suspends the execution until the function is called again.
+Coroutines work the same way, though a bit in reverse than generators --
+generators provide values, coroutines consume values and do something with them.
+While a piece of code can be written in a way so that it produces and consumes
+values at the same time, <a href="http://www.dabeaz.com/coroutines/Coroutines.pdf">it's not a good idea to do so</a></p>
+<p>Generator functions return value using a <code>yield</code> statement:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">gen</span><span class="p">():</span>
+    <span class="k">yield</span> <span class="mi">1</span>
+    <span class="k">yield</span> <span class="mi">2</span>
+    <span class="k">yield</span> <span class="mi">3</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">gen</span><span class="p">()</span>
+<span class="mi">1</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">gen</span><span class="p">()</span>
+<span class="mi">2</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">gen</span><span class="p">()</span>
+<span class="mi">3</span>
+
+<span class="k">def</span> <span class="nf">a_coroutine</span><span class="p">():</span>
+    <span class="n">some_value</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+    <span class="c"># do something with some_value</span>
+
+<span class="n">a_coroutine</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Coroutines use the same yield statement to consume values, like this:</p>
+<div class="highlight"><pre><span class="n">some_value</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+</pre></div>
+
+
+<p>When, inside the function body, a yield statement is hit, the execution pauses
+and the function waits for some value from the caller coroutine, which uses
+<code>coroutine.send()</code> to send the value.</p>
+<div class="highlight"><pre><span class="n">coroutine</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+
+
+<p>When <code>send</code> is called, the execution starts again, the caller does its work
+and pauses again when the next <code>yield</code> statement is hit. This goes again until
+the caller calls the <code>close</code> method which  raises <code>GeneratorExit</code> exception
+inside the callee, which we have to catch and exit gracefully.</p>
+<div class="highlight"><pre><span class="n">coroutine</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Using the above concepts, the following code provides a concrete example of
+coroutines:</p>
+<div class="highlight"><pre><span class="c"># Find a substring when strings are passed</span>
+<span class="k">def</span> <span class="nf">coroutine_substring</span><span class="p">(</span><span class="n">substring</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Waiting for strings&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">whole_string</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">substring</span> <span class="ow">in</span> <span class="n">whole_string</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">whole_string</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">GeneratorExit</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Exiting&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>A coroutine, once instanciated will need to be primed by calling its <strong>next</strong>()
+method, this executes the code till the first <code>yield</code> statement. It can then
+start functioning as required:</p>
+<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">co</span> <span class="o">=</span> <span class="n">coroutine_substring</span><span class="p">(</span><span class="s">&quot;python&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">co</span><span class="o">.</span><span class="n">__next__</span><span class="p">()</span>
+<span class="n">Waiting</span> <span class="k">for</span> <span class="n">strings</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">co</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;I see a python&quot;</span><span class="p">)</span>
+<span class="n">I</span> <span class="n">see</span> <span class="n">a</span> <span class="n">python</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">co</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;I don&#39;t see anything&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">co</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;There it is!&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">co</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;Can&#39;t you see the python&quot;</span><span class="p">)</span>
+<span class="n">Can</span><span class="s">&#39;t you see the python</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">co</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">Exiting</span>
+</pre></div>
+
+
+<h3>Coroutines as pipelines of data</h3>
+<p>Since coroutines can call other coroutines, these can be used as pipelines
+which pass around the data and do something with it.
+Conceptually, each coroutine will require data on which to act upon. This data
+is sent by either another coroutine or by some source function.</p>
+<p>As a trivial example, let's read a file and count the number of vowels in lines
+which contain the word 'gene' in the text.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+    <span class="n">file_obj</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_obj</span><span class="p">:</span>
+        <span class="n">process</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">co_filter_and_count</span><span class="p">(</span><span class="n">substring</span><span class="p">,</span> <span class="n">co_next</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">substring</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">co_next</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">co_next</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">GeneratorExit</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Exiting co_filter_and_count&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">co_count_vowels</span><span class="p">():</span>
+    <span class="n">vowels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="s">&quot;aeiou&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+            <span class="n">vowel_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">vowels</span><span class="p">:</span>
+                    <span class="n">vowel_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">vowel_count</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">GeneratorExit</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Exiting co_count_vowels&quot;</span><span class="p">)</span>
+
+<span class="c"># Prime the coroutines before using them</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cv</span> <span class="o">=</span> <span class="n">co_count_vowels</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cv</span><span class="o">.</span><span class="n">__next__</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">fnc</span> <span class="o">=</span> <span class="n">co_filter_and_count</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">fnc</span><span class="o">.</span><span class="n">__next__</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">filepath</span> <span class="o">=</span> <span class="s">&quot;/home/user/texts/selfish_gene.txt&quot;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">source</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">fnc</span><span class="p">)</span>
+<span class="c"># Lots of output</span>
+</pre></div>
+
+
+<h3>Coroutines as finite state machines</h3>
+<p>Refences: <br>
+1: http://wla.berkeley.edu/~cs61a/fa11/lectures/streams.html <br>
+2: http://www.dabeaz.com/coroutines/Coroutines.pdf <br>
+3: http://c2.com/cgi/wiki?CoRoutine <br>
+4: http://en.wikipedia.org/wiki/Coroutine <br></p>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
