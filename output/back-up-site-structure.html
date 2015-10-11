@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Backing Up Site When Using Pelican and github pages</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li class="active"><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/back-up-site-structure.html" rel="bookmark"
+           title="Permalink to Backing Up Site When Using Pelican and github pages">Backing Up Site When Using Pelican and github pages</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-03-22T00:00:00+05:30">
+                Published: Sun 22 March 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/git.html">git</a>.</p>
+<p>tags: <a href="/tag/git.html">git</a> <a href="/tag/pelican.html">pelican</a> </p>
+</footer><!-- /.post-info -->      <h1>Backup the master branch of Pelican</h1>
+<p>Pelican is an excellent blog generator, write your posts in Markdown/RST and
+whoosh, post them online. There are many themes and plugins available.</p>
+<p>Combine this with github userpages and you have a fully functional, and really
+fast blog available, for free, with all your blog posts in plain text (ok,
+markdown), there are no databases losses, and site is overall fast.</p>
+<p>Anyhow, as per pelican <a href="http://docs.getpelican.com/en/3.5.0/tips.html#user-pages">documentation</a>
+in order to publish the pages on github, we have to use <code>ghp-import</code> which creates
+a new branch <code>gh-pages</code> locally and we have to push this to the master branch
+using these three commands:</p>
+<div class="highlight"><pre><span class="nv">$ </span>pelican content -o output -s pelicanconf.py
+<span class="nv">$ </span>ghp-import output
+<span class="nv">$ </span>git push git@github.com:tushartyagi/tushartyagi.github.io.git gh-pages:master
+</pre></div>
+
+
+<p>This was working fine for some time, but then one day my laptop died, I didn't
+save the article, and didn't push it on master. :(</p>
+<p>So I created a new branch, called backup, and started pushing the data of
+master on this new branch. Since I'm also modifying the theme on a constant
+basis these days, this data needs to have a backup somewhere, it's now on
+github.</p>
+<div class="highlight"><pre><span class="nv">$ </span>git checkout -b backup
+<span class="nv">$ </span>git add .
+<span class="nv">$ </span>git commit -m <span class="s1">&#39;A new branch for backups&#39;</span>
+<span class="nv">$ </span>git push git@github.com:tushartyagit/tushartyagi.github.io.git master:backup
+</pre></div>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

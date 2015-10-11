@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Tushar Tyagi - Express</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li class="active"><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/introduction-to-express.html">Introduction to Express</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/express.html">Express</a>.</p>
+<p>tags: <a href="/tag/express.html">express</a> <a href="/tag/deep-dive.html">deep-dive</a> </p>
+</footer><!-- /.post-info --><h2>Express js:</h2>
+<h3>Installing express system wide</h3>
+<p>While there's a convention of installing node apps inside the project, we
+can install express-generator because it automatically creates boilerplate
+code for express and node based applications.</p>
+<p>The following line does the trick</p>
+<div class="highlight"><pre>&gt;&gt;&gt; npm install express-generator -g
+</pre></div>
+
+
+<h3>Creating a new app in express</h3>
+<ul>
+<li>Open the directory where the express app needs to be present, and express
+again. This creates all the required code<div class="highlight"><pre><span class="nv">$ </span>express
+create : .
+create : ./package.json
+...
+create : ./bin/www
+
+<span class="nv">$ </span>ls
+app.js  bin  package.json  public  routes  views
+</pre></div>
+
+
+</li>
+</ul>
+<h3>Application</h3>
+<ul>
+<li>Conventionally, the Express application is called <code>app</code> within our code, 
+  instantiated by:<div class="highlight"><pre><span class="kd">var</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;express&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
+</pre></div>
+
+
+</li>
+</ul>
+<h3>Middleware</h3>
+<ul>
+<li>
+<p>The middleware is any function which changes the way request and response
+  objects are changed before, in, or after, the request and the response.
+  Usually this is called the middleware stack, because the order in which
+  middleware functions are defined is the order in which they are executed.</p>
+</li>
+<li>
+<p>They have the same syntax except the presence of a parameter called <code>next</code>
+  which calls the next Middleware in line.</p>
+</li>
+</ul>
+<p>Let's take an example, where the requests coming at the root are handled by 
+  some function:</p>
+<div class="highlight"><pre>    <span class="o">:::</span><span class="nx">javascript</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span> 
+        <span class="c1">// handle the req/res </span>
+    <span class="p">});</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>In order to introduce middleware, we have to add another function, which is 
+  the middleware:</p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// modify the req/res in some way</span>
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// use the modified req/res</span>
+<span class="p">});</span>
+</pre></div>
+
+
+<p>There are two important points to notice here:</p>
+<ul>
+<li>
+<p>The order is of paramount  importance. Only because the middleware came 
+before the route handling  function, the latter could use the modified 
+request. </p>
+</li>
+<li>
+<p>The parameter <code>next</code>, which is a method and is called just before the
+function returns. Unless <code>next</code> is called, the request will be left hanging.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The middleware methods can be called before as well as after the routing.
+  Again, we have to make sure that even the routing function calls the next 
+  method in those situations. </p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// modify the req/res in some way</span>
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// use the modified req/res</span>
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// modify the req/res some more</span>
+<span class="p">});</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>Of course, just like the routing methods, even the middleware can take some 
+    routes and then will only modified those requests which match the given 
+    route.</p>
+<p>For instance, the following middleware will only modify the route starting
+with <code>/users</code></p>
+<div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/users&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// modify the req/res in some way</span>
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>What we have been talking about is the app level middleware, which controls 
+    the routing at the application level. In order make the application more 
+    modular, and convenient, it's recommended to divide the routing based on 
+    different routes.</p>
+<p>Let's say we have a section of the application under the route <code>/users</code>. In
+order to use it, we first have to have a separate routing file, let's call 
+it users.js and place it under <code>routes</code> directory.</p>
+<p>Then from the main app, we can access it using:</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./routes/user&#39;</span><span class="p">);</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/user&#39;</span><span class="p">,</span> <span class="nx">user</span><span class="p">);</span>
+</pre></div>
+
+
+<p>In the file <code>users.js</code>, we can have the routing logic:</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;express&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
+
+<span class="c1">// the next route starts from / but since it&#39;s already redirected</span>
+<span class="c1">// from the root, it essentially means /user</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Show a welcome screen</span>
+<span class="p">});</span>
+
+<span class="c1">// Path is /user/account from the main app</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/account&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Show account screens</span>
+<span class="p">});</span>
+
+<span class="c1">// Path is /user/logout from the main app</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/logout&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Logout user</span>
+<span class="p">});</span>
+</pre></div>
+
+
+<p>Of course, we have the option of using middlewares in the routing files 
+too.</p>
+</li>
+</ul>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

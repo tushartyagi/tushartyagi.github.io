@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Git Notes</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li class="active"><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/git-notes.html" rel="bookmark"
+           title="Permalink to Git Notes">Git Notes</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/git.html">git</a>.</p>
+<p>tags: <a href="/tag/git.html">git</a> <a href="/tag/deep-dive.html">deep-dive</a> </p>
+</footer><!-- /.post-info -->      <p>from creating a repo to doing other things.</p>
+<h3>Creating a repo</h3>
+<h4>On the server</h4>
+<p>We start with sshing the server, and creating a bare git. Why bare? In order to
+prevent overwrites from the local repos.</p>
+<div class="highlight"><pre>    $ ssh user@hostname
+    $ git init --bare my-project.git
+</pre></div>
+
+
+<p>github doesn't support shell access, so we have to use curl in order to create a
+repo from command line:</p>
+<div class="highlight"><pre>    # Taken from http://stackoverflow.com/a/10325316
+    $ curl -u &#39;USER&#39; https://api.github.com/user/repos -d &#39;{&quot;name&quot;:&quot;REPO&quot;}&#39;
+    # Then clone the repo at the client, as shown below
+</pre></div>
+
+
+<h4>On the client</h4>
+<div class="highlight"><pre>    $ git init my-project.git
+    # Add remote, and push after making changes
+    $ git remote add origin git@github.com:USERNAME/my-project.git
+    $ git push origin master
+</pre></div>
+
+
+<h3>Cloning a repo</h3>
+<div class="highlight"><pre>    $ git clone path-to-repo.git
+</pre></div>
+
+
+<h3>Checking out a branch</h3>
+<p>Then there are branches of the repo, which are versions of the project. A 
+project can have as many branches as required, where generally each branch adds
+a new feature to the project. We can select, or create a new branch using the 
+<code>checkout</code> command:</p>
+<div class="highlight"><pre>    $ git checkout branch_name  # This selects an already present branch
+    $ git checkout -b branch_name # Creates a new branch and selects it
+</pre></div>
+
+
+<h3>Git File Structure</h3>
+<p>Every git repo has a hidden directory called .git which stores the metadata, 
+and has the compressed object database. When a repo is cloned, this folder is 
+copied from the remote and a local copy of the files and database is created.</p>
+<p>When we checkout a branch, or clone a remote repo, we get what is called as
+the <code>working directory</code> which contains all the files which we can modify. These 
+files have been committed prior to them being available here.</p>
+<p>Once we have a local copy of the repo, we can start making changes and, 
+if required, save the changes in the database. This is usually a two step 
+process, where we first add the modified files in the <code>staging area</code>.</p>
+<p>The staging area is generally contained in your Git directory, and stores 
+metadata about the files. It contains all the changes that will be pushed to 
+the database during the next commit. In order to check what all changes have 
+been done, we can use the <code>diff</code> command which lists the differences between 
+working area and staging area.</p>
+<div class="highlight"><pre>    # lists the changes between staging area and working dir.
+    # If all the changes are staged, this gives nothing
+    $ git diff  
+    # lists changes between staging area and last commit, use anyone:
+    $ git diff --staged 
+    $ git diff --cached
+</pre></div>
+
+
+<p>All the files in a git repo can be either in the tracked state, or untracked 
+state. The status of the files can be checked using <code>status</code> command:</p>
+<div class="highlight"><pre>    $ git status
+    On branch master
+    Your branch is up-to-date with &#39;origin/master&#39;.
+
+    Changes not staged for commit:
+      (use &quot;git add &lt;file&gt;...&quot; to update what will be committed)
+      (use &quot;git checkout -- &lt;file&gt;...&quot; to discard changes in working directory)
+
+            modified:   modified_file.temp
+
+    Untracked files:
+      (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)
+
+            x.temp
+
+    no changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)
+</pre></div>
+
+
+<p>Further, every tracked file in the git repo is in one of the three stages:
+<em> Modified: When the files have been changed but, if you commit right now these 
+    changes will not be saved in the local database. 
+</em> Staged: The files are changed, and the changes have been acknowledged. If you 
+    commit right now, the changes will go to the local database. This is also 
+    called the <code>index</code> of the repository. A file or directory can be staged 
+    using <code>git add &lt;file|directory&gt;</code>
+* Committed: The files are committed, i.e. all the changes that have been done 
+    are now saved in the local database. </p>
+<div class="highlight"><pre>    $ git commit 
+    $ git commit -m &#39;message for this commit&#39;
+    $ git commit -a -m &#39;message for this commit&#39;  # skips the staging area
+</pre></div>
+
+
+<h3>Removing files</h3>
+<p>There are two roads that we can take here:</p>
+<ul>
+<li>Using <code>rm &lt;filename&gt;</code> to delete the file from the working directory. The 
+    change is noted by git, but has to be staged manually using 
+    <code>git add &lt;filename&gt;</code>.</li>
+<li>Using <code>git rm &lt;filename&gt;</code> to remove the file from the working directory and 
+    index, and stop tracking it. <code>git rm</code> removes the files and stages the 
+    changes. These just need to be committed.</li>
+<li>Using <code>git rm --cached &lt;filename&gt;</code> to remove it from the index but keep the 
+    local file. Since the file is present in the working directory, it will 
+    appear in the list of untracked files. A commit is needed. </li>
+</ul>
+<h3>Renaming a file</h3>
+<p>Git supports git mv which can help in renamaing a file. If we are using system 
+<code>mv</code>, much like <code>rm</code>, we have to manually stage the changes. <code>git mv</code> is a 
+shortcut for:</p>
+<div class="highlight"><pre>    $ mv &lt;filename-old&gt; &lt;filename-new&gt;
+    $ git rm &lt;filename-old&gt;
+    $ git add &lt;filename-new&gt;
+</pre></div>
+
+
+<h3>Seeing the differences</h3>
+<p><code>git log</code> lists out all the commits that have been made. using <code>-p</code> option 
+lists commit's info as well. using <code>--stat</code> gives information about insersions, 
+and deletions in the file.</p>
+<h3>Undoing</h3>
+<p><code>git reset HEAD &lt;filname&gt;</code> will unstage the file which has been accidently 
+staged in the index.</p>
+<p><code>git checkout -- &lt;filename&gt;</code> will write over the file with the previous version 
+of the file. Since the <filename> file was not apparently committed (since it 
+was on the index), DON'T use this to restore the older version if you don't 
+want to lose the changes.</p>
+<h3>Working with Remotes</h3>
+<p><code>git remote add [shortname] [url]</code> and then use <code>git fetch shortname</code> </p>
+<p><code>git push [remote] [local]</code> =&gt; <code>git push origin master</code> In order to push, we 
+have to pull their work first. There cannot be successive pushing between 
+different people without any pulling.</p>
+<h3>Branching</h3>
+<p>Before we start with detail of branching, let's take a sidestep in order to 
+understand a few concepts.</p>
+<p>Git doesn't store each and every file that is changed from one commit to 
+another, but it only creates a snapshot of the changes, i.e. the content of the 
+repository at the moment of the commit.</p>
+<p>When a commit is done, roughly we have the following happening:
+<em> Every file is checksum-ed and stored as a blob object
+</em> The directory tree is created, with checksums of the child files and 
+    directories. It's checksum is also calculated.
+* Commit object stores the commit metadata, as well as the checksum of the 
+    current directory tree. This metadata stores the committer data, and the 
+    checksum of the parent commit. </p>
+<p>So we can get the current directory snapshot from any commit object using the 
+stored checksum, move to that and get the directory structure using the stored 
+hashes of the child files and directories.</p>
+<p>Coming back to branching, we can create a new branch using the following 
+command: </p>
+<div class="highlight"><pre>    # Creates a new branch, but doesn&#39;t check it out
+    $ git branch &lt;branch-name&gt;
+
+    # Creates a new branch and checks it out as well
+    $ git checkout -b &lt;branch-name&gt;
+</pre></div>
+
+
+<p>While the new branch is created, we are not using it if we used the first 
+command. In order to start working on the new branch, use <code>checkout</code>.</p>
+<div class="highlight"><pre>    $ git checkout &lt;branch-name&gt;
+</pre></div>
+
+
+<p>Also with every branch, we have what is called the HEAD pointer, which points 
+to the current working branch. If we change the branch, we simply move HEAD to 
+point to the new branch. </p>
+<p>The current status of HEAD can be checked using the <code>--decorate</code> parameter 
+(<code>--all</code> checks out all the branches, and <code>--oneline</code> prints only one line 
+commit message of every commit):</p>
+<div class="highlight"><pre>    $ git log --decorate --all --oneline
+</pre></div>
+
+
+<p>When, on the current branch, we create a new commit, HEAD moves to the new 
+commit (storing the previous commit's hash in the metadata, as already 
+discussed).</p>
+<p>We can list out all the branches using <code>git branch</code> command. Passing <code>-v</code> lists 
+the last message of each commit as well.</p>
+<div class="highlight"><pre>    $ git branch -v
+</pre></div>
+
+
+<p>Using <code>--merged</code> and <code>--no-merged</code> parameters will show the branches which have 
+been and have not been merged to the current branch. Those which are already 
+merged can be safely deleted; git won't let you delete the branches listed by 
+<code>--no-merged</code> parameter.</p>
+<h3>Merging</h3>
+<p>Once we are done with a branch, we have to add it back to the main codebase. 
+This is process called merging. </p>
+<p>Let's take an example where we need to merge the changes of some branch called 
+feature12 into the master branch. It is done in the following manner:</p>
+<ul>
+<li>
+<p>Checkout the branch where the merge is going to be done, in this case 
+<code>master</code>.</p>
+<div class="highlight"><pre><span class="nv">$ </span>git checkout master
+</pre></div>
+
+
+</li>
+<li>
+<p>Use <code>git merge &lt;branchname&gt;</code> to merge the changes:</p>
+<div class="highlight"><pre><span class="nv">$ </span>git merge feature12
+</pre></div>
+
+
+</li>
+</ul>
+<p>Now there are two ways of merging branches, depending on the structure of the 
+branch tree. 
+1. If master is a direct ancestor of the current branch, git uses 
+    fast-forward strategy where the pointer of the master branch (in our case) 
+    will be moved to the new branch.
+2. If master is on some parallel path from the new branch, and they share a 
+    common ancestor (they will have to :)), then git merges the changes in the 
+    common ancestor and creates a new commit out of this merge. </p>
+<h3>Remote Git</h3>
+<p>First when a <code>git clone</code> command is used, git creates a local repo for you to 
+work on. The master is the repo that you usually work on, unless the name is 
+changed. Even on the remote server there is a branch called master (unless a 
+different name is used). After clone, the master of remote is available as 
+<code>origin/master</code>. </p>
+<p>Every change that we do the local repo takes us away from <code>origin/master</code>. If, 
+in the meantime, data on the server has also changed, we use the <code>fetch</code> 
+command to update the local repo.</p>
+<div class="highlight"><pre>    $ git fetch origin
+    $ git fetch &lt;remote-name&gt;
+</pre></div>
+
+
+<p>fetching doesn't allow us to make changes since the pointer still points to the 
+remote branch. In order to start working on this, we need to merge the new 
+branch with our local branch, or create a new branch entirely:</p>
+<div class="highlight"><pre>    $ git merge origin/branchname 
+    $ git checkout -b origin/branchname
+    $ git checkout -b &lt;local-alias&gt; origin/branchname
+</pre></div>
+
+
+<p><code>git push &lt;remote&gt; &lt;local&gt;</code> is used to push the changes that you've done in the 
+local branch into the remote branch, which is a shortcut to:</p>
+<div class="highlight"><pre>    $ git push &lt;remote-name&gt; localbranch:remotebranch
+
+    $ git branch -vv
+    iss53     7e424c3 [origin/iss53: ahead 2] forgot the brackets
+    master    1ae2a45 [origin/master] deploying index fix
+    * serverfix f8674d9 [teamone/server-fix-good: ahead 3, behind 1] this should do it
+    testing   5ea463a trying something new
+</pre></div>
+
+
+<p>ahead n means we have n changes that we haven't pushed to the server.
+behind n means we have n changes that we haven't merged from the server.</p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

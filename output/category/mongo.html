@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Tushar Tyagi - Mongo</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li><a href="/category/javascript.html">javascript</a></li>
+                    <li class="active"><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/introduction-to-mongodb.html">Introduction To MongoDB</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-01-15T00:00:00+05:30">
+                Published: Thu 15 January 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/mongo.html">Mongo</a>.</p>
+<p>tags: <a href="/tag/mongo.html">mongo</a> <a href="/tag/deep-dive.html">deep-dive</a> </p>
+</footer><!-- /.post-info --><h2>Intro to mongodb</h2>
+<p>MongoDB is a document based, schemaless database, and unlike relational
+database, there are no tables, values are stored as JSON documents.</p>
+<p>At the highest level, we have database server, which stores a number of
+database. Each database is made up of collections, which are equivalent to
+tables in relational database. And inside every collection, we have a number of
+documents, which are equivalent to tuples/rows in a relational database.</p>
+<p>The database is schemaless, which means that there are no fixed structure of
+documents inside the collection, and each can have different structure.</p>
+<p>For instance, the following is a valid document in mongodb:</p>
+<div class="highlight"><pre><span class="p">{</span> <span class="nx">name</span> <span class="o">:</span> <span class="s2">&quot;Oscar Wilde&quot;</span><span class="p">,</span> <span class="nx">age</span> <span class="o">:</span> <span class="mi">46</span> <span class="p">}</span>
+</pre></div>
+
+
+<h3>Inserting Values</h3>
+<ul>
+<li>In order to start working, start the mongodb shell using the command <code>mongo</code></li>
+<li>
+<p>A database can be created using the <code>use</code> command. If it's present it is
+  selected, else it is created. </p>
+<div class="highlight"><pre>mongo&gt; use learn-mongo
+</pre></div>
+
+
+<p>Previous statement will create a new database called learn-mongo, given that
+it's not present.</p>
+<p>Once a database is selected, the variable <code>db</code> refers to it.</p>
+<div class="highlight"><pre>mongo&gt; db
+learn-mongo
+</pre></div>
+
+
+</li>
+<li>
+<p>A collection can be created using <code>db.createCollection('name')</code>.</p>
+<div class="highlight"><pre>mongo&gt; db.createCollection(&#39;test&#39;)
+{ &quot;ok&quot; : 1 }
+
+mongo&gt; show collections
+test
+</pre></div>
+
+
+<p>This is the explicit way of creating a collection. A collection is also
+created when a document is saved under some collection using
+<code>db.collectionName.save()</code> command.</p>
+<p>The following command  will create a new collection called persons and
+insert a new record in the collection. </p>
+<div class="highlight"><pre>mongo&gt; db.persons.save({ name: &quot;Oscar&quot;, lastName: &quot;Wilde&quot; })
+WriteResult({ &quot;nInserted&quot; : 1 })
+</pre></div>
+
+
+</li>
+<li>
+<p><code>db.collectionName.find()</code> method can be used to list all the documents in
+  the collection.</p>
+<div class="highlight"><pre>mongo&gt; db.persons.find()
+{ &quot;_id&quot; : ObjectId(&quot;54aecbd3d2576a194767a357&quot;), &quot;name&quot; : &quot;Oscar&quot;, lastName: &quot;Wilde&quot; }
+</pre></div>
+
+
+<p><code>_id</code> is internal value, akin to primary key.</p>
+</li>
+<li>
+<p><code>save()</code> method is a wrapper around insert and update so it provides the 
+    functionality of both of these, i.e. it inserts the document if not already
+    present of updates it. </p>
+</li>
+<li>
+<p>In order to find a specific document, pass the filter criteria:</p>
+<div class="highlight"><pre>mongo&gt; db.persons.find({ name : &quot;Oscar&quot; })
+{ &quot;_id&quot; : ObjectId(&quot;54ae48a94038c8255bdbb862&quot;), &quot;name&quot; : &quot;Oscar&quot;, &quot;lastName&quot; : &quot;Wilde&quot; }
+</pre></div>
+
+
+</li>
+<li>
+<p>The syntax of find command is: <code>db.collectionName.find(criteria, projection)</code>
+   where criteria is the filter criteria and projection is the list of values
+   which you want to get. The primary key value, <code>_id</code> is always get by default
+   unless supressed.</p>
+</li>
+<li>
+<p>And to display only selected values from the document, pass another object, 
+  with the fields which you want to show having non-zero values</p>
+<div class="highlight"><pre>mongo&gt; db.persons.find({ name : &quot;Oscar&quot; }, { name : 1 })
+{ &quot;_id&quot; : ObjectId(&quot;54ae48a94038c8255bdbb862&quot;), &quot;name&quot; : &quot;Oscar&quot; }
+
+mongo&gt; db.persons.find({ name : &quot;Oscar&quot; }, { name : 1, _id : 0 })
+{ &quot;name&quot; : &quot;Oscar&quot; }
+</pre></div>
+
+
+</li>
+<li>
+<p>Insertion can be one object at a time, or we can pass an array of objects.</p>
+<div class="highlight"><pre><span class="nt">mongo</span><span class="o">&gt;</span> <span class="nt">var</span> <span class="nt">algy</span> <span class="o">=</span> <span class="p">{</span> <span class="n">firstName</span> <span class="o">:</span> <span class="s2">&quot;Algy&quot;</span><span class="o">,</span> <span class="n">lastName</span><span class="o">:</span> <span class="s2">&quot;Moncrieff&quot;</span><span class="o">,</span> <span class="n">hobbies</span><span class="o">:</span> <span class="cp">[</span><span class="s2">&quot;Eating&quot;</span><span class="p">,</span> <span class="s2">&quot;Bunburying&quot;</span><span class="p">,</span> <span class="s2">&quot;Flirting&quot;</span><span class="cp">]</span> <span class="p">}</span>
+<span class="nt">mongo</span><span class="o">&gt;</span> <span class="nt">var</span> <span class="nt">jack</span> <span class="o">=</span> <span class="p">{</span> <span class="n">firstName</span> <span class="o">:</span> <span class="s2">&quot;Jack&quot;</span><span class="o">,</span> <span class="n">lastName</span> <span class="o">:</span> <span class="s2">&quot;Worthing&quot;</span> <span class="p">}</span>
+<span class="nt">mongo</span><span class="o">&gt;</span> <span class="nt">var</span> <span class="nt">bracknells</span> <span class="o">=</span> <span class="cp">[</span><span class="p">{</span> <span class="nx">firstName</span> <span class="p">:</span> <span class="s2">&quot;Augusta&quot;</span><span class="p">,</span> <span class="nx">lastName</span> <span class="p">:</span> <span class="s2">&quot;Bracknell&quot;</span><span class="p">,</span> <span class="nx">hobbies</span> <span class="p">:</span> <span class="err">[</span><span class="s2">&quot;Gossiping&quot;</span><span class="p">,</span> <span class="s2">&quot;Husband hunting&quot;</span><span class="cp">]</span> <span class="err">}</span><span class="o">,</span>
+                <span class="p">{</span> <span class="n">firstName</span> <span class="o">:</span> <span class="s2">&quot;Gwendolen&quot;</span><span class="o">,</span> <span class="n">lastName</span> <span class="o">:</span> <span class="s2">&quot;Fairfax&quot;</span><span class="o">,</span> <span class="n">hobbies</span><span class="o">:</span> <span class="cp">[</span><span class="s2">&quot;Loving Earnest&quot;</span><span class="cp">]</span><span class="p">}</span><span class="o">];</span>
+
+<span class="nt">mongo</span><span class="o">&gt;</span> <span class="nt">db</span><span class="nc">.persons.save</span><span class="o">(</span><span class="nt">algy</span><span class="o">);</span>
+<span class="nt">WriteResult</span><span class="o">(</span><span class="p">{</span> <span class="s2">&quot;nInserted&quot;</span> <span class="o">:</span> <span class="m">1</span> <span class="p">}</span><span class="o">)</span>
+
+<span class="nt">mongo</span><span class="o">&gt;</span> <span class="nt">db</span><span class="nc">.persons.save</span><span class="o">(</span><span class="nt">jack</span><span class="o">);</span>
+<span class="nt">WriteResult</span><span class="o">(</span><span class="p">{</span> <span class="s2">&quot;nInserted&quot;</span> <span class="o">:</span> <span class="m">1</span> <span class="p">}</span><span class="o">)</span>
+
+<span class="nt">mongo</span><span class="o">&gt;</span> <span class="nt">db</span><span class="nc">.persons.save</span><span class="o">(</span><span class="nt">bracknells</span><span class="o">);</span>
+<span class="nt">BulkWriteResult</span><span class="o">(</span><span class="p">{</span>
+    <span class="s2">&quot;writeErrors&quot;</span> <span class="o">:</span> <span class="cp">[</span> <span class="cp">]</span><span class="o">,</span>
+    <span class="s2">&quot;writeConcernErrors&quot;</span> <span class="o">:</span> <span class="cp">[</span> <span class="cp">]</span><span class="o">,</span>
+    <span class="s2">&quot;nInserted&quot;</span> <span class="o">:</span> <span class="m">2</span><span class="o">,</span>
+    <span class="s2">&quot;nUpserted&quot;</span> <span class="o">:</span> <span class="m">0</span><span class="o">,</span>
+    <span class="s2">&quot;nMatched&quot;</span> <span class="o">:</span> <span class="m">0</span><span class="o">,</span>
+    <span class="s2">&quot;nModified&quot;</span> <span class="o">:</span> <span class="m">0</span><span class="o">,</span>
+    <span class="s2">&quot;nRemoved&quot;</span> <span class="o">:</span> <span class="m">0</span><span class="o">,</span>
+    <span class="s2">&quot;upserted&quot;</span> <span class="o">:</span> <span class="cp">[</span> <span class="cp">]</span>
+<span class="p">}</span><span class="o">)</span>
+
+<span class="nt">mongo</span><span class="o">&gt;</span> <span class="nt">db</span><span class="nc">.persons.find</span><span class="o">();</span>
+<span class="o">//</span> <span class="o">...</span> <span class="nt">values</span>
+</pre></div>
+
+
+</li>
+</ul>
+<h3>Updating Values</h3>
+<p>We already know how to insert values using <code>save</code>, and find values using <code>find</code>
+command. Now we have to see how we can update the values we've already inserted
+using <code>update</code> method, which has the following syntax:</p>
+<div class="highlight"><pre>db.collection.update(query, update, options)
+query: filter query
+update: the modifications to apply
+options: { upsert : default false,  // Creates a document if none found
+           multi  : default false,  // Updates multiple docs if true, else updates only one document
+           writeConcern : document
+         }
+</pre></div>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

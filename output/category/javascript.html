@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Tushar Tyagi - javascript</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Tushar Tyagi </a></h1>
+                <nav><ul>
+                    <li><a href="/category/angularjs.html">AngularJS</a></li>
+                    <li><a href="/category/emacs.html">Emacs</a></li>
+                    <li><a href="/category/express.html">Express</a></li>
+                    <li><a href="/category/git.html">git</a></li>
+                    <li><a href="/category/haskell.html">Haskell</a></li>
+                    <li class="active"><a href="/category/javascript.html">javascript</a></li>
+                    <li><a href="/category/mongo.html">Mongo</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/object-oriented-javascript.html">Object Oriented JavaScript</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-03-10T00:00:00+05:30">
+                Published: Tue 10 March 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/tushar-tyagi.html">Tushar Tyagi</a>
+        </address>
+<p>In <a href="/category/javascript.html">javascript</a>.</p>
+<p>tags: <a href="/tag/javascript.html">javascript</a> <a href="/tag/oojs.html">oojs</a> </p>
+</footer><!-- /.post-info --><h1>Object Oriented Javascript</h1>
+<p>JavaScript doesn't support class based oo programming, it has object based 
+oo support. This means that instead of creating classes and instantiating them 
+we simply start with objects and an object can inherit attributes and 
+properties from other objects.</p>
+<h2>A Digression</h2>
+<p>Before jumping into actual OO code, I want to  digress and show how inheritance
+works in JS.</p>
+<p>In the developer tool of any browser, if I create a new object, and checkout
+it's properties, there's a property called <code>__proto__</code>. This is the heart of
+JS inheritance structure.</p>
+<div class="highlight"><pre><span class="o">&gt;&gt;</span> <span class="kd">var</span> <span class="nx">func</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Function</span><span class="p">();</span>
+<span class="o">&gt;&gt;</span> <span class="nx">func</span><span class="p">.</span><span class="nx">__proto__</span><span class="p">;</span> <span class="c1">// function ( )</span>
+
+<span class="o">&gt;&gt;</span> <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+<span class="o">&gt;&gt;</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">__proto__</span><span class="p">;</span> <span class="c1">// Object ( )</span>
+
+<span class="o">&gt;&gt;</span> <span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
+<span class="o">&gt;&gt;</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">__proto__</span><span class="p">;</span> <span class="c1">// Array [ ]</span>
+</pre></div>
+
+
+<p>Now this is a hidden property and cannot be accessed in our code. But it's
+important. Here's how:</p>
+<p>Since there's no concept of class in JS, an object has to depend on itself for
+properties. If it doesn't have a property, it looks into its parent object
+through <code>__proto__</code>. If the property is still not found, the grandparent is
+checked for the property and this goes on till we reach <code>Object</code>. Now, <code>Object</code>
+has this property as <code>null</code> so if we still can't find the property, an
+exception is thrown. </p>
+<p>Following the same logic, we see that <code>func</code> will have function properties,
+like <code>call</code> and <code>apply</code>; <code>arr</code> will have <code>push()</code> and <code>pop()</code> etc.</p>
+<h2>Create A Class</h2>
+<p>One look at the statements above and you'll notice that I'm  calling some
+constructors: <code>Function</code>, <code>Object</code>, and <code>Array</code>. These constructors create
+a new object and initialise it's <code>__proto__</code> property.</p>
+<p>By convention, the names of constructors are capitalised and these are
+always used with <code>new</code> keyword, something like:</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cons</span><span class="p">();</span>
+</pre></div>
+
+
+<p>So there's no way of creating a class in JS, we just have to create
+constructor functions and create our objects using these.</p>
+<p>Inside the constructors, we have access to <code>this</code> keyword, which works a lot
+like other OO languages.</p>
+<div class="highlight"><pre><span class="kd">function</span> <span class="nx">Person</span><span class="p">(</span><span class="nx">firstName</span><span class="p">,</span> <span class="nx">lastName</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">firstName</span> <span class="o">=</span> <span class="nx">firstName</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">lastName</span> <span class="o">=</span> <span class="nx">lastName</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">getFullName</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">firstName</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">lastName</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">peter</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">(</span><span class="s2">&quot;Peter&quot;</span><span class="p">,</span> <span class="s2">&quot;Parker&quot;</span><span class="p">);</span>
+<span class="nx">peter</span><span class="p">.</span><span class="nx">getFullName</span><span class="p">();</span> <span class="c1">// Peter Parker</span>
+</pre></div>
+
+
+<h2>Another prototype??</h2>
+<p>If I look at Person() in developer tools, I'll see another property called
+<code>prototype</code>. And it's only present in function objects, not in <code>Object</code>s and
+<code>Array</code>s. What is this thing?</p>
+<p>Before I answer that question, let's see how the dynamic duo of constructors
+and <code>new</code> really work behind the scenes.</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">bruce</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">(</span><span class="s2">&quot;Bruce&quot;</span><span class="p">,</span> <span class="s2">&quot;Wayne&quot;</span><span class="p">);</span>
+</pre></div>
+
+
+<ol>
+<li>A new, empty object is created </li>
+<li>This object's <code>__proto__</code> is set to Person.prototype</li>
+<li>The constructor function is called, with <code>this</code> keyword set to the new
+object.</li>
+<li>The reference of this new object is stored in <code>bruce</code>.</li>
+</ol>
+<p>The second point is really important to understand what <code>prototype</code> does and
+why it's used. </p>
+<p>An object's <code>prototype</code> will hold all the properties and values which will be
+used by every object that instantiates from it. If you look at the second point
+<code>__proto__</code> is used for property lookups, and if we point it to some object, we
+have an upper hand as to where to start looking for properties.</p>
+<p>I'll explain this again so as to drill it further down. The <code>prototype</code> object
+is just another object containing some properties and methods. When we create
+an object its <code>__proto__</code> gets a reference to <code>prototype</code> object of the
+constructor and hence it gets all the goodies inside <code>prototype</code>. Whenever we
+need a property, we check the object and if not found, go searching through
+all the <code>__proto__</code>s all the way to the object.</p>
+<p>Now if you want to ask where is <code>Person.prototype</code> is pointing to? It's
+pointing to the parent of all objects: Object. Every top level constructor's
+prototype refers to <code>Object</code>.</p>
+<p>TL;DR: <code>__proto__</code> is checked while trying to find the properties through the
+parents and grandparents. <code>prototype</code> is simply used to hold a reference to
+the constructor with which we've created a particular object.</p>
+<p>And since <code>prototype</code> is writable, we'll change it to our advantage in the
+by adding properties which are used by all the objects sharing the same
+prototype.</p>
+<div class="highlight"><pre><span class="nx">Person</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">walk</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;walking&quot;</span><span class="p">);</span> <span class="p">}</span>
+<span class="nx">bruce</span><span class="p">.</span><span class="nx">walk</span><span class="p">();</span> <span class="c1">// walking</span>
+<span class="nx">peter</span><span class="p">.</span><span class="nx">walk</span><span class="p">();</span> <span class="c1">// walking</span>
+</pre></div>
+
+
+<p>The effect is dynamic and updates older objects as well. If we check
+<code>Person.prototype</code> in console, it now contains <code>walk()</code>.</p>
+<h2>Extend Already!!</h2>
+<p>Another main concept of OOP is that a child class can inherit properties and
+methods of its parent class.</p>
+<p>Now we know that <code>prototype</code> is writable, and contains the properties which
+will be inherited by child objects.</p>
+<p>Let's create a superhero which will inherit from <code>Person</code>. There are some
+steps that we have to follow in order to extend an object.</p>
+<ol>
+<li>
+<p>Create the child object</p>
+<div class="highlight"><pre><span class="kd">function</span> <span class="nx">Superhero</span><span class="p">(</span><span class="nx">firstName</span><span class="p">,</span> <span class="nx">lastName</span><span class="p">,</span> <span class="nx">power</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// call to &quot;super&quot; or parent constructor</span>
+    <span class="nx">Person</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">firstName</span><span class="p">,</span> <span class="nx">lastName</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">power</span> <span class="o">=</span> <span class="nx">power</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">showPower</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">power</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>But check <code>Superhero.prototype</code> here, it's still <code>Object</code> and doesn't
+contain the methods we added to <code>Person</code>, so we need to change the
+<code>prototype</code>.</p>
+</li>
+<li>
+<p>Change the prototype of child object </p>
+<div class="highlight"><pre><span class="c1">// This means that the Superhero will copy all the</span>
+<span class="c1">// properties of Person object</span>
+<span class="nx">Superhero</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Person</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+</pre></div>
+
+
+<p>Now checkout the <code>Superhero.prototype.constructor</code>, it is <code>Person</code>. This
+attribute lets us know what constructor do we have to call when <code>Superhero</code>
+is called. We know that it has to be Superhero, so we have to change this
+as well.</p>
+</li>
+<li>
+<p>Let the Superhero know that it's a Superhero</p>
+<div class="highlight"><pre><span class="nx">Superhero</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">Superhero</span><span class="p">;</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>Execute</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">spidey</span> <span class="o">=</span> <span class="nx">Superhero</span><span class="p">(</span><span class="s2">&quot;Amazing&quot;</span><span class="p">,</span> <span class="s2">&quot;Spiderman&quot;</span><span class="p">,</span> <span class="s2">&quot;Spins web&quot;</span><span class="p">);</span>
+<span class="nx">spidey</span><span class="p">.</span><span class="nx">getFullName</span><span class="p">();</span> <span class="c1">// Amazing Spiderman</span>
+<span class="nx">spidey</span><span class="p">.</span><span class="nx">walk</span><span class="p">();</span> <span class="c1">// walking</span>
+<span class="nx">spidey</span><span class="p">.</span><span class="nx">showPower</span><span class="p">();</span> <span class="c1">// Spins web</span>
+</pre></div>
+
+
+</li>
+</ol>
+<h2>Parting words</h2>
+<p>I hope this article was helpful in painting a clearer picture of OOP in
+JavaScript. Of course, we cannot have everything which mainsteam classical
+languages provide, something like inheriting private variables comes to mind.</p>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
